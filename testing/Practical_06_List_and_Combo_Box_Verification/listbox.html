@@ -1,0 +1,95 @@
+<!--
+  Practical No : 06
+  Topic        : List and Combo Box Item Verification
+  File name    : listbox.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration Form</title>
+</head>
+<body>
+
+<h1>Registration Form</h1>
+
+<form>
+
+<!-- Name -->
+Name:
+<input type="text" name="name" style="width:205px;">
+<br><br>
+
+<!-- Email -->
+Email:
+<input type="email" name="email" style="width:205px;">
+<br><br>
+
+<!-- Gender -->
+Gender:
+<input type="radio" name="gender" id="male" value="Male"> Male
+<input type="radio" name="gender" id="female" value="Female"> Female
+<br><br>
+
+<!-- Languages -->
+Languages:
+<br>
+<select name="languages" id="languageList" multiple size="10">
+<option>Java</option>
+<option>Python</option>
+<option>C</option>
+<option>C++</option>
+<option>JavaScript</option>
+<option>PHP</option>
+<option>HTML</option>
+<option>CSS</option>
+<option>SQL</option>
+</select>
+<br><br>
+
+<!-- Country -->
+Country:
+<select name="country" id="country">
+<option>United Kingdom</option>
+<option>India</option>
+<option>USA</option>
+<option>Canada</option>
+<option>Australia</option>
+</select>
+<br><br>
+
+<!-- State -->
+State:
+<select name="state" id="state">
+<option>----Select State----</option>
+<option>Maharashtra</option>
+<option>Goa</option>
+<option>Karnataka</option>
+<option>Gujarat</option>
+</select>
+<br><br>
+
+<!-- District -->
+District:
+<select name="district" id="district">
+<option>----Select District----</option>
+<option>Sindhudurg</option>
+<option>Ratnagiri</option>
+<option>Kolhapur</option>
+<option>Pune</option>
+<option>Mumbai</option>
+</select>
+<br><br>
+
+<!-- Register Button -->
+<input type="button" value="Register" onclick="registerUser()">
+
+</form>
+
+<script>
+function registerUser() {
+alert("Registration Successful!");
+}
+</script>
+
+</body>
+</html>

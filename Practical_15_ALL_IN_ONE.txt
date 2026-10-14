@@ -1,0 +1,243 @@
+PRACTICAL No. 15 - Cross-Browser Testing Using Selenium Grid
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium Grid 4.50.0 (hub + node)
+  * Remote WebDriver (Java)
+  * Command Prompt x2
+  * NetBeans + JDK 11+
+  * Chrome, Firefox, Microsoft Edge
+  * XAMPP (Apache) - page under test
+
+REQUIREMENTS
+------------
+  * HTML form : YES - login.html (same page as Practical 14; login.php / database.php / login_db.sql included for completeness)
+  * Excel data : NOT needed
+  * Java code  : YES - AllBrowserTest.java (runs Chrome, Firefox, Edge in one program and prints the execution time of each)
+  * Database   : only if you submit the login form (login_db.sql)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - login.html
+  - login.php
+  - database.php
+  - login_db.sql
+  - grid_commands.txt
+  - AllBrowserTest.java
+
+STEPS / HOW TO RUN
+------------------
+1. Same set-up as Practical 14: login page in C:\xampp\htdocs\user_login\, hub on port 4444, node registered (see grid_commands.txt).
+2. Run AllBrowserTest.java in NetBeans. For chrome, firefox and MicrosoftEdge it creates a RemoteWebDriver session on the Grid,
+   opens the login page and prints: Browser, Page Title, Current URL, Execution Time (ms) measured with System.currentTimeMillis().
+3. Open the Grid UI and check the sessions created and the concurrency.
+4. Compare the three execution times and any compatibility differences (title / URL / rendering) in your write-up.
+Tip: the original code never calls driver.quit(), so the sessions stay open on the Grid until it times out - add driver.quit() at the end of runTest() to free the slots.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: login.html
+======================================================================
+<!--
+  Practical No : 15
+  Topic        : Cross-Browser Testing Using Selenium Grid
+  File name    : login.html
+-->
+<html>
+<head>
+<title>Login</title>
+</head>
+<body>
+<div class="box">
+<h2>Login User</h2>
+<form action="login.php" method="post">
+<label for="name">Enter your Name</label><br>
+<input type="text" id="name" name="name" required>
+<br><br>
+<label for="password">Enter Password</label><br>
+<input type="password" id="password" name="password" required>
+<br><br>
+<input type="submit" name="submit" id="login" value="Login">
+</form>
+</div>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: login.php
+======================================================================
+<?php
+/*
+ * Practical No : 15
+ * Topic        : Cross-Browser Testing Using Selenium Grid
+ * File name    : login.php
+ */
+include "database.php";
+
+$name = $_POST['name'];
+$password = $_POST['password'];
+
+/* Check whether name exists */
+$name_sql = "SELECT * FROM users WHERE name='$name'";
+$name_result = mysqli_query($conn, $name_sql);
+
+if (mysqli_num_rows($name_result) == 0)
+{
+    /* Name does not exist, now check password */
+    $password_sql = "SELECT * FROM users WHERE password='$password'";
+    $password_result = mysqli_query($conn, $password_sql);
+
+    if (mysqli_num_rows($password_result) == 0)
+    {
+        echo "Both Name and Password are Invalid";
+    }
+    else
+    {
+        echo "Invalid Name";
+    }
+}
+else
+{
+    $user = mysqli_fetch_assoc($name_result);
+
+    if ($user['password'] == $password)
+    {
+        echo "Login Successful";
+    }
+    else
+    {
+        echo "Invalid Password";
+    }
+}
+?>
+
+
+
+======================================================================
+ FILE: database.php
+======================================================================
+<?php
+/*
+ * Practical No : 15
+ * Topic        : Cross-Browser Testing Using Selenium Grid
+ * File name    : database.php
+ */
+$conn = mysqli_connect("localhost","root","","login_db");
+
+if(!$conn)
+{
+    die("Connection Failed");
+}
+?>
+
+
+
+======================================================================
+ FILE: login_db.sql
+======================================================================
+-- Practical No : 15
+-- Topic        : Cross-Browser Testing Using Selenium Grid
+-- File name    : login_db.sql
+
+-- Database used by login.php / database.php of the Selenium Grid practicals
+-- (a DIFFERENT table layout from the registration_db used in Practicals 2 and 3)
+CREATE DATABASE IF NOT EXISTS login_db;
+USE login_db;
+
+CREATE TABLE IF NOT EXISTS users (
+    id       INT AUTO_INCREMENT PRIMARY KEY,
+    name     VARCHAR(50),
+    password VARCHAR(50)
+);
+
+INSERT INTO users (name, password) VALUES
+('admin',  '12345'),
+('Joseph', '794561');
+
+
+
+======================================================================
+ FILE: grid_commands.txt
+======================================================================
+Selenium Grid 4.50.0 - Hub / Node commands  (run each in its own Command Prompt, in the folder that has the jar)
+
+CMD 1 - start the HUB
+    java -jar selenium-server-4.50.0.jar hub --port 4444
+
+   Open a browser: http://192.168.1.5:4444   (use your own IP, shown in the hub start-up message)
+   -> "grid has no registered nodes yet"
+
+CMD 2 - start the NODE and register it with the hub
+    java -jar selenium-server-4.50.0.jar node --hub http://192.168.1.5:4444
+
+   Refresh http://192.168.1.5:4444  -> the node with Chrome / Firefox / Edge slots is registered.
+
+Run the Java classes from NetBeans (the Grid URL in the code is http://localhost:4444).
+Refresh the Grid UI to see the created sessions and concurrency (sessions / max sessions).
+
+Prerequisites on the node machine: Chrome + chromedriver, Firefox + geckodriver, Edge + msedgedriver
+(Selenium Manager in Selenium 4.6+ downloads the drivers automatically if they are not on PATH).
+Selenium libraries for NetBeans: the two jars from the 4.50.0 download (selenium-server-4.50.0.jar + the client jar / "selenium-java" jars).
+
+
+
+======================================================================
+ FILE: AllBrowserTest.java
+======================================================================
+/*
+ * Practical No : 15
+ * Topic        : Cross-Browser Testing Using Selenium Grid
+ * File name    : AllBrowserTest.java
+ */
+package selenium_grid;
+
+import java.net.URL;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+public class AllBrowserTest {
+
+    public static void runTest(String browser) throws Exception {
+
+        DesiredCapabilities dc = new DesiredCapabilities();
+
+        dc.setBrowserName(browser);
+
+        long startTime = System.currentTimeMillis();
+
+        WebDriver driver = new RemoteWebDriver(
+                new URL("http://localhost:4444"), dc);
+
+        driver.get("http://localhost/user_login/login.html");
+
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("--------------------------------");
+        System.out.println("Browser: " + browser);
+        System.out.println("Page Title: " + driver.getTitle());
+        System.out.println("Current URL: " + driver.getCurrentUrl());
+        System.out.println("Execution Time: "
+                + (endTime - startTime) + " ms");
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        runTest("chrome");
+        runTest("firefox");
+        runTest("MicrosoftEdge");
+
+        System.out.println("--------------------------------");
+        System.out.println("Cross-Browser Testing Completed");
+    }
+}
+

@@ -1,0 +1,200 @@
+PRACTICAL No. 07 - Checkbox Identification and Validation
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium WebDriver (Java)
+  * Selenium JAR + ChromeDriver
+  * NetBeans 8.2 + JDK 1.8
+  * XAMPP htdocs (page opened with file:///)
+
+REQUIREMENTS
+------------
+  * HTML form : YES - Student_form.html (text, address, radio, 5 hobby checkboxes, submit)
+  * Excel data : NOT needed
+  * Java code  : YES - CheckboxIdentification.java (the middle part was only visible as screenshots; rebuilt from them)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - Student_form.html
+  - CheckboxIdentification.java
+
+STEPS / HOW TO RUN
+------------------
+1. Save Student_form.html as C:\xampp\htdocs\project7\Student_form.html
+2. Create package CheckboxIdentification / class CheckboxIdentification (Selenium JAR on classpath).
+3. Edit the chromedriver.exe path and run. The program fills name/address, clicks Female + Singing + Sports + Dancing,
+   counts checked vs unchecked hobby checkboxes, clicks every unchecked one (Java 8 stream), counts again (all 5 checked) and submits.
+NOTE: Student_form.html had a stray '</textarea>' tag on the address field in the document - removed here.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: Student_form.html
+======================================================================
+<!--
+  Practical No : 07
+  Topic        : Checkbox Identification and Validation
+  File name    : Student_form.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Form</title>
+</head>
+<body>
+
+<h2>Registration Form</h2>
+
+<form>
+
+<!-- Name -->
+<label>Name:</label>
+<input type="text" name="name">
+<br><br>
+
+<!-- Address -->
+<label>Address:</label>
+<input type="text" name="address">
+<br><br>
+
+<!-- Gender -->
+<label>Gender:</label><br><br>
+<input type="radio" name="gender" value="Male"> Male<br>
+<input type="radio" name="gender" value="Female"> Female<br>
+<input type="radio" name="gender" value="Other"> Other
+<br><br>
+
+<!-- Hobbies -->
+<label>Hobbies:</label><br><br>
+<input type="checkbox" name="hobby" value="Reading"> Reading<br>
+<input type="checkbox" name="hobby" value="Singing"> Singing<br>
+<input type="checkbox" name="hobby" value="Sports"> Sports<br>
+<input type="checkbox" name="hobby" value="Dancing"> Dancing<br>
+<input type="checkbox" name="hobby" value="Gaming"> Gaming
+<br><br>
+
+<!-- Submit -->
+<input type="submit" value="Submit">
+
+</form>
+
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: CheckboxIdentification.java
+======================================================================
+/*
+ * Practical No : 07
+ * Topic        : Checkbox Identification and Validation
+ * File name    : CheckboxIdentification.java
+ */
+package CheckboxIdentification;
+
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class CheckboxIdentification {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        System.setProperty("webdriver.chrome.driver",
+                "C:\\Users\\Sakshi\\Documents\\NetBeansProjects\\project3\\src\\driver\\chromedriver.exe");
+
+        WebDriver driver = new ChromeDriver();
+
+        driver.get("file:///C:/xampp/htdocs/project7/Student_form.html");
+        driver.manage().window().maximize();
+
+        driver.findElement(By.name("name"))
+                .sendKeys("Sakshi Ramkrishna Mestry");
+        System.out.println("Name : Sakshi Ramkrishna Mestry");
+        Thread.sleep(2000);
+
+        driver.findElement(By.name("address"))
+                .sendKeys("Vengurla, Sindhudurg");
+        System.out.println("Address : Vengurla, Sindhudurg");
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//input[@value='Female']")).click();
+        System.out.println("Gender : Female");
+        Thread.sleep(2000);
+
+        driver.findElement(By.xpath("//input[@value='Singing']")).click();
+        System.out.println("Hobby : Singing");
+        Thread.sleep(1000);
+
+        driver.findElement(By.xpath("//input[@value='Sports']")).click();
+        System.out.println("Hobby : Sports");
+        Thread.sleep(1000);
+
+        driver.findElement(By.xpath("//input[@value='Dancing']")).click();
+        System.out.println("Hobby : Dancing");
+        Thread.sleep(1000);
+        Thread.sleep(2000);
+        // Find checkboxes
+        List<WebElement> hobbyList = driver.findElements(By.name("hobby"));
+
+        int checked = 0;
+        int unchecked = 0;
+
+        // Before Dynamic Selection
+        System.out.println("\n===== Before Dynamic Selection =====");
+
+        for (WebElement hobby : hobbyList) {
+            if (hobby.isSelected()) {
+                checked++;
+                System.out.println(hobby.getAttribute("value") + " : Checked");
+            } else {
+                unchecked++;
+                System.out.println(hobby.getAttribute("value") + " : Unchecked");
+            }
+        }
+        System.out.println("------------------------------------");
+        System.out.println("Total Checkboxes     : " + hobbyList.size());
+        System.out.println("Checked Checkboxes   : " + checked);
+        System.out.println("Unchecked Checkboxes : " + unchecked);
+
+        // Dynamic Selection
+        hobbyList.stream().filter((hobby) -> (!hobby.isSelected())).forEachOrdered((hobby) -> {
+            hobby.click();
+        });
+
+        // Validation
+        checked = 0;
+        unchecked = 0;
+
+        System.out.println("\n===== After Dynamic Selection =====");
+
+        for (WebElement hobby : hobbyList) {
+            if (hobby.isSelected()) {
+                checked++;
+                System.out.println(hobby.getAttribute("value") + " : Checked");
+            } else {
+                unchecked++;
+                System.out.println(hobby.getAttribute("value") + " : Unchecked");
+            }
+        }
+        Thread.sleep(1000);
+        System.out.println("------------------------------------");
+        System.out.println("Total Checkboxes     : " + hobbyList.size());
+        System.out.println("Checked Checkboxes   : " + checked);
+        System.out.println("Unchecked Checkboxes : " + unchecked);
+
+        // Submit Form
+        driver.findElement(By.xpath("//input[@type='submit']")).click();
+        System.out.println("\nForm Submitted Successfully");
+
+    }
+}
+

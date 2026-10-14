@@ -1,0 +1,169 @@
+PRACTICAL No. 05 - Object Identification and Counting on Web Page
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium WebDriver (Java)
+  * Selenium JAR + ChromeDriver
+  * NetBeans 8.2 + JDK 1.8
+  * XAMPP (Apache)
+
+REQUIREMENTS
+------------
+  * HTML form : YES - registration.html (inputs, radio, checkboxes, dropdown, image, button)
+  * Excel data : NOT needed
+  * Java code  : YES - CountingWebElements.java
+  * Image file : doraemon.png placeholder (any picture works - it only has to be an <img>)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - registration.html
+  - CountingWebElements.java
+  - doraemon.png
+
+STEPS / HOW TO RUN
+------------------
+1. Put registration.html + doraemon.png into C:\xampp\htdocs\SoftwareTesting\Practical_5\ and start Apache.
+2. NetBeans: new project, add Selenium JAR, create class CountingWebElements (package softwaretesting).
+3. Edit the chromedriver.exe path, run it. Expected console output (from the screenshot):
+     Total input tags are : 9      (name, address, email, 2 x gender, 3 x hobby, submit button)
+     Total anchor tags are : 0
+     Total images are : 1
+     Total dropdowns are : 1
+     Total options are : 5
+     Total Web Elements Counted : 10   (inputs + anchors + images)
+NOTE: registration.html is rebuilt from your screenshot (the original document only had a picture of the page).
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: registration.html
+======================================================================
+<!--
+  Practical No : 05
+  Topic        : Object Identification and Counting on Web Page
+  File name    : registration.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration Form</title>
+</head>
+<body>
+<h2>Registration Form</h2>
+
+Name: <input type="text" name="name"><br><br>
+Address: <input type="text" name="address"><br><br>
+Email: <input type="email" name="email"><br><br>
+
+Gender:
+<input type="radio" name="gender" value="Male"> Male
+<input type="radio" name="gender" value="Female"> Female
+<br><br>
+
+Hobbies:
+<input type="checkbox" name="hobby" value="Reading"> Reading
+<input type="checkbox" name="hobby" value="Music"> Music
+<input type="checkbox" name="hobby" value="Sports"> Sports
+<br><br>
+
+State:
+<select name="state">
+<option>----Select----</option>
+<option>Maharashtra</option>
+<option>Goa</option>
+<option>Karnataka</option>
+<option>Gujarat</option>
+</select>
+<br><br>
+
+<img src="doraemon.png" width="280" height="280" alt="picture">
+<br><br>
+
+<input type="submit" name="Button" value="Register">
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: CountingWebElements.java
+======================================================================
+/*
+ * Practical No : 05
+ * Topic        : Object Identification and Counting on Web Page
+ * File name    : CountingWebElements.java
+ */
+package softwaretesting;
+
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class CountingWebElements {
+
+    public static void main(String[] args) {
+
+        System.setProperty("webdriver.chrome.driver","D:\\Software Testing\\SoftwareTesting\\drivers\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+
+        driver.get("http://localhost/SoftwareTesting/Practical_5/registration.html");
+
+        int counter = 0;
+        int i;
+
+        // Counting Input Tags
+        List<WebElement> inputs = driver.findElements(By.tagName("input"));
+        System.out.println("Total input tags are : " + inputs.size());
+
+        for (i = 0; i < inputs.size(); i++) {
+            System.out.println("Input " + (i + 1)+ " name is "+ inputs.get(i).getAttribute("name")+ " and its type is " + inputs.get(i).getAttribute("type"));
+
+            counter++;
+        }
+
+        // Counting Anchor Tags
+        List<WebElement> links = driver.findElements(By.tagName("a"));
+        System.out.println("\nTotal anchor tags are : " + links.size());
+
+        for (i = 0; i < links.size(); i++) {
+            System.out.println(" and its target page is "+ "Link " + (i + 1)+ " text is "+ links.get(i).getText() + links.get(i).getAttribute("href"));
+
+            counter++;
+        }
+
+        // Counting Image Tags
+        List<WebElement> images = driver.findElements(By.tagName("img"));
+        System.out.println("\nTotal images are : " + images.size());
+
+        for (i = 0; i < images.size(); i++) {
+            counter++;
+        }
+
+        //Counting Select Tags
+        List<WebElement> dropdown = driver.findElements(By.tagName("select"));
+        System.out.println("\nTotal dropdowns are : " + dropdown.size());
+
+        // Counting Option Tags
+        List<WebElement> options = driver.findElements(By.tagName("option"));
+        System.out.println("Total options are : " + options.size());
+
+        // Total Count
+        System.out.println("\nTotal Web Elements Counted : " + counter);
+
+    }
+}
+
+
+
+======================================================================
+ IMAGE FILE: doraemon.png  (placeholder picture - the real file is in testing/Practical_05_Object_Identification_and_Counting/)
+======================================================================
+

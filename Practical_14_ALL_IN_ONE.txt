@@ -1,0 +1,312 @@
+PRACTICAL No. 14 - Selenium Server (Grid) Configuration and Remote Execution
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium Server / Grid 4.50.0 (selenium-server-4.50.0.jar) - Hub and Node
+  * Remote WebDriver (Java) + DesiredCapabilities
+  * Command Prompt x2 (hub, node)
+  * NetBeans + JDK 11+ (Selenium 4 needs Java 11 or newer)
+  * Chrome, Firefox, Microsoft Edge
+  * XAMPP (Apache, MySQL, PHP) + phpMyAdmin
+
+REQUIREMENTS
+------------
+  * HTML form : YES - login.html (+ login.php, database.php) in C:\xampp\htdocs\user_login\
+  * Excel data : NOT needed
+  * Java code  : YES - chrome.java, Selenium_grid.java (Firefox), edge.java  (package selenium_grid)
+  * Database   : YES - login_db.users (login_db.sql)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - login.html
+  - login.php
+  - database.php
+  - login_db.sql
+  - grid_commands.txt
+  - chrome.java
+  - Selenium_grid.java
+  - edge.java
+
+STEPS / HOW TO RUN
+------------------
+1. Download Selenium Server 4.50.0 (selenium-server-4.50.0.jar) and add the two jar files to the NetBeans project libraries.
+2. Put login.html, login.php, database.php in C:\xampp\htdocs\user_login\ ; run login_db.sql in phpMyAdmin.
+3. Start the hub, start the node, check the Grid UI - exact commands are in grid_commands.txt.
+4. Run chrome.java -> Chrome opens through the Grid; console prints Browser / Page Title / Current URL.
+5. Refresh the Grid UI -> a session is created (check concurrency).
+6. Repeat for Firefox (Selenium_grid.java) and Edge (edge.java), compare the cross-browser results.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: login.html
+======================================================================
+<!--
+  Practical No : 14
+  Topic        : Selenium Server (Grid) Configuration and Remote Execution
+  File name    : login.html
+-->
+<html>
+<head>
+<title>Login</title>
+</head>
+<body>
+<div class="box">
+<h2>Login User</h2>
+<form action="login.php" method="post">
+<label for="name">Enter your Name</label><br>
+<input type="text" id="name" name="name" required>
+<br><br>
+<label for="password">Enter Password</label><br>
+<input type="password" id="password" name="password" required>
+<br><br>
+<input type="submit" name="submit" id="login" value="Login">
+</form>
+</div>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: login.php
+======================================================================
+<?php
+/*
+ * Practical No : 14
+ * Topic        : Selenium Server (Grid) Configuration and Remote Execution
+ * File name    : login.php
+ */
+include "database.php";
+
+$name = $_POST['name'];
+$password = $_POST['password'];
+
+/* Check whether name exists */
+$name_sql = "SELECT * FROM users WHERE name='$name'";
+$name_result = mysqli_query($conn, $name_sql);
+
+if (mysqli_num_rows($name_result) == 0)
+{
+    /* Name does not exist, now check password */
+    $password_sql = "SELECT * FROM users WHERE password='$password'";
+    $password_result = mysqli_query($conn, $password_sql);
+
+    if (mysqli_num_rows($password_result) == 0)
+    {
+        echo "Both Name and Password are Invalid";
+    }
+    else
+    {
+        echo "Invalid Name";
+    }
+}
+else
+{
+    $user = mysqli_fetch_assoc($name_result);
+
+    if ($user['password'] == $password)
+    {
+        echo "Login Successful";
+    }
+    else
+    {
+        echo "Invalid Password";
+    }
+}
+?>
+
+
+
+======================================================================
+ FILE: database.php
+======================================================================
+<?php
+/*
+ * Practical No : 14
+ * Topic        : Selenium Server (Grid) Configuration and Remote Execution
+ * File name    : database.php
+ */
+$conn = mysqli_connect("localhost","root","","login_db");
+
+if(!$conn)
+{
+    die("Connection Failed");
+}
+?>
+
+
+
+======================================================================
+ FILE: login_db.sql
+======================================================================
+-- Practical No : 14
+-- Topic        : Selenium Server (Grid) Configuration and Remote Execution
+-- File name    : login_db.sql
+
+-- Database used by login.php / database.php of the Selenium Grid practicals
+-- (a DIFFERENT table layout from the registration_db used in Practicals 2 and 3)
+CREATE DATABASE IF NOT EXISTS login_db;
+USE login_db;
+
+CREATE TABLE IF NOT EXISTS users (
+    id       INT AUTO_INCREMENT PRIMARY KEY,
+    name     VARCHAR(50),
+    password VARCHAR(50)
+);
+
+INSERT INTO users (name, password) VALUES
+('admin',  '12345'),
+('Joseph', '794561');
+
+
+
+======================================================================
+ FILE: grid_commands.txt
+======================================================================
+Selenium Grid 4.50.0 - Hub / Node commands  (run each in its own Command Prompt, in the folder that has the jar)
+
+CMD 1 - start the HUB
+    java -jar selenium-server-4.50.0.jar hub --port 4444
+
+   Open a browser: http://192.168.1.5:4444   (use your own IP, shown in the hub start-up message)
+   -> "grid has no registered nodes yet"
+
+CMD 2 - start the NODE and register it with the hub
+    java -jar selenium-server-4.50.0.jar node --hub http://192.168.1.5:4444
+
+   Refresh http://192.168.1.5:4444  -> the node with Chrome / Firefox / Edge slots is registered.
+
+Run the Java classes from NetBeans (the Grid URL in the code is http://localhost:4444).
+Refresh the Grid UI to see the created sessions and concurrency (sessions / max sessions).
+
+Prerequisites on the node machine: Chrome + chromedriver, Firefox + geckodriver, Edge + msedgedriver
+(Selenium Manager in Selenium 4.6+ downloads the drivers automatically if they are not on PATH).
+Selenium libraries for NetBeans: the two jars from the 4.50.0 download (selenium-server-4.50.0.jar + the client jar / "selenium-java" jars).
+
+
+
+======================================================================
+ FILE: chrome.java
+======================================================================
+/*
+ * Practical No : 14
+ * Topic        : Selenium Server (Grid) Configuration and Remote Execution
+ * File name    : chrome.java
+ */
+package selenium_grid;
+
+import java.net.URL;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+public class chrome {
+
+    public static void main(String[] args) throws Exception {
+
+        DesiredCapabilities dc = new DesiredCapabilities();
+
+        // Chrome browser
+        dc.setBrowserName("chrome");
+
+        // Connect to Selenium Grid
+        WebDriver driver = new RemoteWebDriver(
+                new URL("http://localhost:4444"), dc);
+
+        // Open website
+        driver.get("http://localhost/user_login/login.html");
+
+        System.out.println("Browser: Chrome");
+        System.out.println("Page Title: " + driver.getTitle());
+        System.out.println("Current URL: " + driver.getCurrentUrl());
+        System.out.println("Remote execution completed successfully.");
+    }
+}
+
+
+
+======================================================================
+ FILE: Selenium_grid.java
+======================================================================
+/*
+ * Practical No : 14
+ * Topic        : Selenium Server (Grid) Configuration and Remote Execution
+ * File name    : Selenium_grid.java
+ */
+package selenium_grid;
+
+import java.net.URL;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+public class Selenium_grid {
+
+    public static void main(String[] args) throws Exception {
+
+        DesiredCapabilities dc = new DesiredCapabilities();
+
+        // Firefox browser
+        dc.setBrowserName("firefox");
+
+        // Connect to Selenium Grid
+        WebDriver driver = new RemoteWebDriver(
+                new URL("http://localhost:4444"), dc);
+
+        // Open website
+        driver.get("http://localhost/user_login/login.html");
+
+        System.out.println("Browser: Firefox");
+        System.out.println("Page Title: " + driver.getTitle());
+        System.out.println("Current URL: " + driver.getCurrentUrl());
+        System.out.println("Remote execution completed successfully.");
+    }
+}
+
+
+
+======================================================================
+ FILE: edge.java
+======================================================================
+/*
+ * Practical No : 14
+ * Topic        : Selenium Server (Grid) Configuration and Remote Execution
+ * File name    : edge.java
+ */
+package selenium_grid;
+
+import java.net.URL;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+public class edge {
+
+    public static void main(String[] args) throws Exception {
+
+        DesiredCapabilities dc = new DesiredCapabilities();
+
+        // Edge browser
+        dc.setBrowserName("MicrosoftEdge");
+
+        // Connect to Selenium Grid
+        WebDriver driver = new RemoteWebDriver(
+                new URL("http://localhost:4444"), dc);
+
+        // Open website
+        driver.get("http://localhost/user_login/login.html");
+
+        System.out.println("Browser: Microsoft Edge");
+        System.out.println("Page Title: " + driver.getTitle());
+        System.out.println("Current URL: " + driver.getCurrentUrl());
+        System.out.println("Remote execution completed successfully.");
+    }
+}
+

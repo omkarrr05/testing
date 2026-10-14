@@ -1,0 +1,19 @@
+Selenium Grid 4.50.0 - Hub / Node commands  (run each in its own Command Prompt, in the folder that has the jar)
+
+CMD 1 - start the HUB
+    java -jar selenium-server-4.50.0.jar hub --port 4444
+
+   Open a browser: http://192.168.1.5:4444   (use your own IP, shown in the hub start-up message)
+   -> "grid has no registered nodes yet"
+
+CMD 2 - start the NODE and register it with the hub
+    java -jar selenium-server-4.50.0.jar node --hub http://192.168.1.5:4444
+
+   Refresh http://192.168.1.5:4444  -> the node with Chrome / Firefox / Edge slots is registered.
+
+Run the Java classes from NetBeans (the Grid URL in the code is http://localhost:4444).
+Refresh the Grid UI to see the created sessions and concurrency (sessions / max sessions).
+
+Prerequisites on the node machine: Chrome + chromedriver, Firefox + geckodriver, Edge + msedgedriver
+(Selenium Manager in Selenium 4.6+ downloads the drivers automatically if they are not on PATH).
+Selenium libraries for NetBeans: the two jars from the 4.50.0 download (selenium-server-4.50.0.jar + the client jar / "selenium-java" jars).

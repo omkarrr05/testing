@@ -1,0 +1,319 @@
+PRACTICAL No. 04 - Data Extraction and Score Analysis from Web Table
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium WebDriver (Java)
+  * Selenium JAR + ChromeDriver
+  * NetBeans 8.2 + JDK 1.8
+  * XAMPP (Apache, MySQL, PHP) + phpMyAdmin (dynamic table)
+
+REQUIREMENTS
+------------
+  * HTML form : YES - student.html (static table) and student.php (dynamic table from MySQL)
+  * Excel data : NOT needed (data lives in HTML / MySQL)
+  * Java code  : YES - WebTableHandling.java (static) and CountStudents.java (dynamic)
+  * Database   : YES - student_marks.students (student_marks.sql)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - student.html
+  - student.php
+  - student_marks.sql
+  - WebTableHandling.java
+  - CountStudents.java
+
+STEPS / HOW TO RUN
+------------------
+PART 1 - static table
+1. Put student.html in C:\xampp\htdocs\project4\
+2. Run WebTableHandling.java: prints the header row and all 8 student rows with printf("%-11s").
+PART 2 - dynamic table
+3. phpMyAdmin -> run student_marks.sql (creates database student_marks, table students, 8 rows).
+4. Put student.php in C:\xampp\htdocs\project4\ ; the PHP connects on port 3308 -> change to 3306 if your MySQL uses the default.
+5. Run CountStudents.java (page: http://localhost:8080/project4/student.php).
+   It prints: total students, students scoring above 60 in at least one subject, pass / fail count and percentages
+   (fail = any subject mark below 40).
+Edit chromedriver.exe paths and the Apache port in the Java files for your machine.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: student.html
+======================================================================
+<!--
+  Practical No : 04
+  Topic        : Data Extraction and Score Analysis from Web Table
+  File name    : student.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Marks</title>
+</head>
+<body>
+<h1>Student Marks Record</h1>
+<table border="1" cellspacing="0" cellpadding="8">
+<tr>
+<th>Name</th>
+<th>English</th>
+<th>Maths</th>
+<th>Physics</th>
+<th>Chemistry</th>
+<th>CS I & II</th>
+</tr>
+<tr><td>Sakshi</td><td>60</td><td>65</td><td>58</td><td>62</td><td>70</td></tr>
+<tr><td>Tanish</td><td>90</td><td>85</td><td>88</td><td>80</td><td>92</td></tr>
+<tr><td>Simran</td><td>75</td><td>60</td><td>72</td><td>68</td><td>85</td></tr>
+<tr><td>Prachi</td><td>70</td><td>78</td><td>74</td><td>69</td><td>80</td></tr>
+<tr><td>Pavan</td><td>81</td><td>91</td><td>83</td><td>79</td><td>90</td></tr>
+<tr><td>Nitya</td><td>55</td><td>70</td><td>65</td><td>60</td><td>72</td></tr>
+<tr><td>Utkarsha</td><td>40</td><td>50</td><td>58</td><td>54</td><td>61</td></tr>
+<tr><td>Poonam</td><td>80</td><td>90</td><td>85</td><td>82</td><td>93</td></tr>
+</table>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: student.php
+======================================================================
+<?php
+/*
+ * Practical No : 04
+ * Topic        : Data Extraction and Score Analysis from Web Table
+ * File name    : student.php
+ */
+$conn = mysqli_connect("localhost", "root", "", "student_marks",3308);
+if (!$conn) {
+die("Connection Failed: " . mysqli_connect_error());
+}
+$sql = "SELECT * FROM students";
+$result = mysqli_query($conn, $sql);
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Marks</title>
+</head>
+<body>
+<h2>Student Marks</h2>
+<table border="1" cellpadding="8" cellspacing="0">
+<tr align="center">
+<th>Name</th>
+<th>English</th>
+<th>Maths</th>
+<th>Physics</th>
+<th>Chemistry</th>
+<th>CS & IT</th>
+</tr>
+<?php
+while ($row = mysqli_fetch_assoc($result))
+{
+?>
+<tr align="center">
+<td><?php echo $row['name']; ?></td>
+<td><?php echo $row['English']; ?></td>
+<td><?php echo $row['Maths']; ?></td>
+<td><?php echo $row['Physics']; ?></td>
+<td><?php echo $row['Chemistry']; ?></td>
+<td><?php echo $row['CS & IT']; ?></td>
+</tr>
+<?php
+}
+mysqli_close($conn);
+?>
+</table>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: student_marks.sql
+======================================================================
+-- Practical No : 04
+-- Topic        : Data Extraction and Score Analysis from Web Table
+-- File name    : student_marks.sql
+
+-- Database for the dynamic table (data = the same 8 students as student.html)
+CREATE DATABASE IF NOT EXISTS student_marks;
+USE student_marks;
+
+CREATE TABLE IF NOT EXISTS students (
+    name        VARCHAR(50),
+    English     INT,
+    Maths       INT,
+    Physics     INT,
+    Chemistry   INT,
+    `CS & IT`   INT
+);
+
+INSERT INTO students (name, English, Maths, Physics, Chemistry, `CS & IT`) VALUES
+('Sakshi',   60, 65, 58, 62, 70),
+('Tanish',   90, 85, 88, 80, 92),
+('Simran',   75, 60, 72, 68, 85),
+('Prachi',   70, 78, 74, 69, 80),
+('Pavan',    81, 91, 83, 79, 90),
+('Nitya',    55, 70, 65, 60, 72),
+('Utkarsha', 40, 50, 58, 54, 61),
+('Poonam',   80, 90, 85, 82, 93);
+
+
+
+======================================================================
+ FILE: WebTableHandling.java
+======================================================================
+/*
+ * Practical No : 04
+ * Topic        : Data Extraction and Score Analysis from Web Table
+ * File name    : WebTableHandling.java
+ */
+package Project4;
+
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class WebTableHandling {
+
+    public static void main(String[] args) {
+
+        System.setProperty("webdriver.chrome.driver",
+                "C:\\Users\\Sakshi\\Documents\\NetBeansProjects\\project4\\src\\driver\\chromedriver.exe");
+
+        WebDriver driver = new ChromeDriver();
+
+        driver.get("file:///C:/xampp/htdocs/project4/student.html");
+
+        WebElement table = driver.findElement(By.tagName("table"));
+
+        List<WebElement> rows = table.findElements(By.tagName("tr"));
+
+        for (WebElement row : rows) {
+
+            List<WebElement> cells = row.findElements(By.tagName("th"));
+
+            if (cells.isEmpty()) {
+                cells = row.findElements(By.tagName("td"));
+            }
+
+            for (WebElement cell : cells) {
+                System.out.printf("%-11s", cell.getText());
+            }
+
+            System.out.println();
+        }
+    }
+}
+
+
+
+======================================================================
+ FILE: CountStudents.java
+======================================================================
+/*
+ * Practical No : 04
+ * Topic        : Data Extraction and Score Analysis from Web Table
+ * File name    : CountStudents.java
+ */
+package CountingStudents;
+
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class CountStudents {
+
+    public static void main(String[] args) {
+
+        System.setProperty(
+                "webdriver.chrome.driver",
+                "C:\\Users\\Sakshi\\Documents\\NetBeansProjects\\project4\\src\\driver\\chromedriver.exe");
+
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            driver.get("http://localhost:8080/project4/student.php");
+
+            List<WebElement> rows = driver.findElements(By.xpath("//table//tr"));
+
+            int totalStudents = rows.size() - 1;
+            int matchingStudentCount = 0;
+            int passCount = 0;
+            int failCount = 0;
+
+            for (int i = 1; i < rows.size(); i++) {
+
+                WebElement row = rows.get(i);
+                List<WebElement> cells = row.findElements(By.tagName("td"));
+
+                boolean scoredAbove60 = false;
+                boolean pass = true;
+
+                for (WebElement cell : cells) {
+
+                    String cellText = cell.getText().trim();
+
+                    if (!cellText.isEmpty()) {
+                        try {
+                            int mark = Integer.parseInt(cellText);
+
+                            // Student scored above 60 in at least one subject
+                            if (mark > 60) {
+                                scoredAbove60 = true;
+                            }
+
+                            // Student fails if any subject is below 40
+                            if (mark < 40) {
+                                pass = false;
+                            }
+                        } catch (NumberFormatException e) {
+                            // Ignore non-numeric cells (the student name)
+                        }
+                    }
+                }
+
+                if (scoredAbove60) {
+                    matchingStudentCount++;
+                }
+
+                if (pass) {
+                    passCount++;
+                } else {
+                    failCount++;
+                }
+            }
+
+            double percentage = 0.0;
+            if (totalStudents > 0) {
+                percentage = ((double) matchingStudentCount / totalStudents) * 100;
+            }
+
+            double passPercentage = 0.0;
+            if (totalStudents > 0) {
+                passPercentage = ((double) passCount / totalStudents) * 100;
+            }
+
+            System.out.println("Total Students Processed : " + totalStudents);
+            System.out.println("Students Scoring Above 60 in At Least One Subject : " + matchingStudentCount);
+            System.out.printf("Percentage Above 60 : %.2f%%%n", percentage);
+            System.out.println("Pass Students : " + passCount);
+            System.out.println("Fail Students : " + failCount);
+            System.out.printf("Pass Percentage : %.2f%%%n", passPercentage);
+
+        } finally {
+        }
+    }
+}
+

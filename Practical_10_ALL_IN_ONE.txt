@@ -1,0 +1,378 @@
+PRACTICAL No. 10 - Web Element Interaction and Synchronization Handling
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium WebDriver (Java) - implicit wait, WebDriverWait / ExpectedConditions, Alert, frame switching
+  * Selenium 3.x JAR (code uses 'new WebDriverWait(driver, 10)' and TimeUnit - Selenium 3 API)
+  * ChromeDriver
+  * NetBeans + JDK 1.8
+  * XAMPP htdocs (page opened with file:///)
+
+REQUIREMENTS
+------------
+  * HTML form : YES - login.html (name, gender radios, hobby checkboxes, city dropdown, Submit with JS alert, iframe)
+  * Excel data : NOT needed
+  * Java code  : YES - WebElementInteraction.java (package Practical10)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - login.html
+  - WebElementInteraction.java
+
+STEPS / HOW TO RUN
+------------------
+1. Save login.html as C:\xampp\htdocs\Selenium\Practical_10\login.html
+2. NetBeans: package Practical10, class WebElementInteraction; add Selenium 3.x JAR; set the chromedriver.exe path.
+3. Run. Flow: implicit wait 10 s -> open page -> explicit waits -> type name -> select Male -> tick 4 hobbies -> choose city Kudal ->
+   clear name and Submit (alert 'Name should be mandatory!') -> accept -> re-enter name -> Submit (alert 'Login successful!') -> accept
+   -> switch into the iframe, print the table of contents -> back to main page -> driver.quit().
+   On Selenium 4 replace  new WebDriverWait(driver, 10)  with  new WebDriverWait(driver, Duration.ofSeconds(10)).
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: login.html
+======================================================================
+<!--
+  Practical No : 10
+  Topic        : Web Element Interaction and Synchronization Handling
+  File name    : login.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login Page</title>
+<script>
+function validateForm() {
+var name = document.getElementById("name").value;
+if (name == "") {
+alert("Name should be mandatory!");
+return false;
+}
+alert("Login successful!");
+}
+</script>
+</head>
+<body>
+
+<h1>Login and Registration Form</h1>
+
+<!-- Name -->
+<label>Name:</label>
+<input type="text" id="name">
+<br><br>
+
+<!-- Gender -->
+<label>Gender:</label>
+<input type="radio" id="male" name="gender" value="Male">
+<label for="male">Male</label>
+<input type="radio" id="female" name="gender" value="Female">
+<label for="female">Female</label>
+<input type="radio" id="other" name="gender" value="Other">
+<label for="other">Other</label>
+<br><br>
+
+<!-- Hobbies -->
+<label>Hobbies:</label>
+<input type="checkbox" id="reading">
+<label for="reading">Reading</label>
+<input type="checkbox" id="music">
+<label for="music">Music</label>
+<input type="checkbox" id="cricket">
+<label for="cricket">Cricket</label>
+<input type="checkbox" id="travelling">
+<label for="travelling">Travelling</label>
+<br><br>
+
+<!-- City -->
+<label>City:</label>
+<select id="city">
+<option value="">Select City</option>
+<option value="Kudal">Kudal</option>
+<option value="Sawantwadi">Sawantwadi</option>
+<option value="Malvan">Malvan</option>
+<option value="Kankavli">Kankavli</option>
+<option value="Vengurla">Vengurla</option>
+<option value="Devgad">Devgad</option>
+</select>
+<br><br>
+
+<!-- Submit -->
+<button id="submitButton" onclick="validateForm()">
+Submit
+</button>
+<br><br>
+
+<!-- Frame -->
+<h2>Table of Contents</h2>
+<iframe id="contentFrame" width="400" height="200"
+srcdoc="
+<html>
+<body>
+<h3>Contents</h3>
+<ul>
+<li>Introduction</li>
+<li>Student Information</li>
+<li>Hobbies</li>
+<li>City Selection</li>
+<li>Selenium Automation</li>
+</ul>
+</body>
+</html>
+">
+</iframe>
+
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: WebElementInteraction.java
+======================================================================
+/*
+ * Practical No : 10
+ * Topic        : Web Element Interaction and Synchronization Handling
+ * File name    : WebElementInteraction.java
+ */
+package Practical10;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class WebElementInteraction {
+
+    public static void wait2Seconds() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+
+        System.setProperty(
+                "webdriver.chrome.driver",
+                "D:\\PNT Prac\\JavaApplication1\\src\\driver\\chromedriver.exe"
+        );
+
+        WebDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+
+        System.out.println("WEB ELEMENT INTERACTION AND SYNCHRONIZATION");
+        wait2Seconds();
+
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+        System.out.println("\n[1] IMPLICIT WAIT");
+        System.out.println("Implicit wait set to 10 seconds.");
+        wait2Seconds();
+
+        String htmlFile = "file:///C:/xampp/htdocs/Selenium/Practical_10/login.html";
+
+        driver.get(htmlFile);
+
+        System.out.println("\n[2] PAGE OPENED");
+        System.out.println("Login page opened successfully.");
+        wait2Seconds();
+
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+
+        System.out.println("\n[3] EXPLICIT WAIT");
+        System.out.println("Explicit wait set to 10 seconds.");
+        wait2Seconds();
+
+        WebElement name = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("name"))
+        );
+
+        name.sendKeys("Tanish Sane");
+
+        System.out.println("\n[4] TEXTBOX");
+        System.out.println("Name entered : " + name.getAttribute("value"));
+        wait2Seconds();
+
+        WebElement female = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("male"))
+        );
+
+        female.click();
+
+        System.out.println("\n[5] RADIO BUTTON");
+        System.out.println("Gender selected : Male");
+        wait2Seconds();
+
+        WebElement reading = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("reading"))
+        );
+        reading.click();
+
+        System.out.println("\n[6] CHECKBOXES");
+        System.out.println("Reading : Selected");
+        wait2Seconds();
+
+        WebElement music = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("music"))
+        );
+        music.click();
+
+        System.out.println("Music : Selected");
+        wait2Seconds();
+
+        WebElement cricket = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("cricket"))
+        );
+        cricket.click();
+
+        System.out.println("Cricket : Selected");
+        wait2Seconds();
+
+        WebElement travelling = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("travelling"))
+        );
+        travelling.click();
+
+        System.out.println("Travelling : Selected");
+        wait2Seconds();
+
+        System.out.println("\n[7] DROPDOWN");
+
+        WebElement cityElement = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("city"))
+        );
+
+        Select city = new Select(cityElement);
+        city.selectByVisibleText("Kudal");
+
+        System.out.println(
+                "Selected city : "
+                + city.getFirstSelectedOption().getText()
+        );
+        wait2Seconds();
+
+        System.out.println("\n[8] ALERT HANDLING");
+
+        name.clear();
+
+        System.out.println("Name textbox cleared.");
+        wait2Seconds();
+
+        WebElement submit = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("submitButton"))
+        );
+
+        submit.click();
+
+        System.out.println("Submit button clicked.");
+        wait2Seconds();
+
+        Alert alert = wait.until(
+                ExpectedConditions.alertIsPresent()
+        );
+
+        System.out.println("Alert message : " + alert.getText());
+        wait2Seconds();
+
+        alert.accept();
+
+        System.out.println("Alert accepted successfully.");
+        wait2Seconds();
+
+        name.sendKeys("Tanish Sane");
+
+        System.out.println("\n[9] NAME VALIDATION");
+        System.out.println(
+                "Name entered again : "
+                + name.getAttribute("value")
+        );
+        wait2Seconds();
+
+        submit.click();
+
+        System.out.println("Submit button clicked with valid name.");
+        wait2Seconds();
+
+        alert = wait.until(
+                ExpectedConditions.alertIsPresent()
+        );
+
+        System.out.println("Alert message : " + alert.getText());
+        wait2Seconds();
+
+        alert.accept();
+
+        System.out.println("Success alert accepted.");
+        wait2Seconds();
+
+        System.out.println("\n[10] FRAME HANDLING");
+
+        wait.until(
+                ExpectedConditions.frameToBeAvailableAndSwitchToIt(
+                        By.id("contentFrame")
+                )
+        );
+
+        System.out.println("Switched to frame successfully.");
+        wait2Seconds();
+
+        WebElement frameHeading = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(
+                        By.tagName("h3")
+                )
+        );
+
+        System.out.println(
+                "Frame heading : "
+                + frameHeading.getText()
+        );
+        wait2Seconds();
+
+        List<WebElement> listItems = driver.findElements(By.tagName("li"));
+
+        System.out.println("\nTable of Contents:");
+
+        for (WebElement item : listItems) {
+            System.out.println(" - " + item.getText());
+            wait2Seconds();
+        }
+
+        driver.switchTo().defaultContent();
+
+        System.out.println("\nSwitched back to main page.");
+        wait2Seconds();
+
+        System.out.println("\nTEST EXECUTION COMPLETED");
+
+        System.out.println("Implicit Wait : PASSED");
+        System.out.println("Explicit Wait : PASSED");
+        System.out.println("Textbox : PASSED");
+        System.out.println("Radio Button : PASSED");
+        System.out.println("Checkbox : PASSED");
+        System.out.println("Dropdown : PASSED");
+        System.out.println("Alert : PASSED");
+        System.out.println("Frame : PASSED");
+        System.out.println("Synchronization : PASSED");
+
+        wait2Seconds();
+
+        driver.quit();
+
+        System.out.println("Browser closed successfully.");
+    }
+}
+

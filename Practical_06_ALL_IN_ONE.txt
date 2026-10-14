@@ -1,0 +1,256 @@
+PRACTICAL No. 06 - List and Combo Box Item Verification
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium WebDriver (Java) - org.openqa.selenium.support.ui.Select class
+  * Selenium JAR + ChromeDriver
+  * NetBeans 8.2 + JDK 1.8
+  * XAMPP (htdocs folder; page is opened with file:///)
+
+REQUIREMENTS
+------------
+  * HTML form : YES - listbox.html (text, email, radio, multi-select list, 3 dropdowns, Register button with alert)
+  * Excel data : NOT needed
+  * Java code  : YES - ListVerification.java
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - listbox.html
+  - ListVerification.java
+
+STEPS / HOW TO RUN
+------------------
+1. Save listbox.html as C:\xampp\htdocs\project6\listbox.html
+   (the document calls the page 'list.html' but the Java code opens 'listbox.html' - the file here is named to match the Java).
+2. Create package ListVerification / class ListVerification in NetBeans (Selenium JAR on the classpath).
+3. Edit the chromedriver.exe path, run. The program: types name+email, clicks the Female radio, lists all Languages / Countries,
+   prints default + selected option, selects Python / India / Maharashtra / Sindhudurg, clicks Register and accepts the alert.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: listbox.html
+======================================================================
+<!--
+  Practical No : 06
+  Topic        : List and Combo Box Item Verification
+  File name    : listbox.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration Form</title>
+</head>
+<body>
+
+<h1>Registration Form</h1>
+
+<form>
+
+<!-- Name -->
+Name:
+<input type="text" name="name" style="width:205px;">
+<br><br>
+
+<!-- Email -->
+Email:
+<input type="email" name="email" style="width:205px;">
+<br><br>
+
+<!-- Gender -->
+Gender:
+<input type="radio" name="gender" id="male" value="Male"> Male
+<input type="radio" name="gender" id="female" value="Female"> Female
+<br><br>
+
+<!-- Languages -->
+Languages:
+<br>
+<select name="languages" id="languageList" multiple size="10">
+<option>Java</option>
+<option>Python</option>
+<option>C</option>
+<option>C++</option>
+<option>JavaScript</option>
+<option>PHP</option>
+<option>HTML</option>
+<option>CSS</option>
+<option>SQL</option>
+</select>
+<br><br>
+
+<!-- Country -->
+Country:
+<select name="country" id="country">
+<option>United Kingdom</option>
+<option>India</option>
+<option>USA</option>
+<option>Canada</option>
+<option>Australia</option>
+</select>
+<br><br>
+
+<!-- State -->
+State:
+<select name="state" id="state">
+<option>----Select State----</option>
+<option>Maharashtra</option>
+<option>Goa</option>
+<option>Karnataka</option>
+<option>Gujarat</option>
+</select>
+<br><br>
+
+<!-- District -->
+District:
+<select name="district" id="district">
+<option>----Select District----</option>
+<option>Sindhudurg</option>
+<option>Ratnagiri</option>
+<option>Kolhapur</option>
+<option>Pune</option>
+<option>Mumbai</option>
+</select>
+<br><br>
+
+<!-- Register Button -->
+<input type="button" value="Register" onclick="registerUser()">
+
+</form>
+
+<script>
+function registerUser() {
+alert("Registration Successful!");
+}
+</script>
+
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: ListVerification.java
+======================================================================
+/*
+ * Practical No : 06
+ * Topic        : List and Combo Box Item Verification
+ * File name    : ListVerification.java
+ */
+package ListVerification;
+
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class ListVerification {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Sakshi\\Documents\\NetBeansProjects\\project3\\src\\driver\\chromedriver.exe");
+
+        WebDriver driver = new ChromeDriver();
+
+        driver.get("file:///C:/xampp/htdocs/project6/listbox.html");
+
+        driver.manage().window().maximize();
+
+        // Enter Name
+        driver.findElement(By.name("name")).sendKeys("Sakshi Mestry");
+        Thread.sleep(2000);
+
+        // Enter Email
+        driver.findElement(By.name("email")).sendKeys("sakshi@gmail.com");
+        Thread.sleep(2000);
+
+        // Select Female (the original comment said "Select Male")
+        driver.findElement(By.id("female")).click();
+        Thread.sleep(2000);
+
+        // ================= Language List =================
+        Select languageList = new Select(driver.findElement(By.id("languageList")));
+
+        List<WebElement> languages = languageList.getOptions();
+
+        System.out.println("Total Languages: " + languages.size());
+
+        System.out.println("\nLanguages Available:");
+        for (WebElement language : languages) {
+            System.out.println(language.getText());
+        }
+
+        System.out.println("\nDefault Selected Language:");
+        for (WebElement language : languageList.getAllSelectedOptions()) {
+            System.out.println(language.getText());
+        }
+
+        // Select Python
+        languageList.selectByVisibleText("Python");
+
+        System.out.println("\nSelected Language:");
+        for (WebElement language : languageList.getAllSelectedOptions()) {
+            System.out.println(language.getText());
+        }
+        Thread.sleep(2000);
+
+        // ================= Country =================
+        Select country = new Select(driver.findElement(By.id("country")));
+
+        List<WebElement> countries = country.getOptions();
+
+        System.out.println("\nTotal Countries: " + countries.size());
+
+        System.out.println("\nCountry List:");
+        for (WebElement c : countries) {
+            System.out.println(c.getText());
+        }
+
+        System.out.println("\nDefault Country:");
+        System.out.println(country.getFirstSelectedOption().getText());
+
+        country.selectByVisibleText("India");
+
+        System.out.println("\nSelected Country:");
+        System.out.println(country.getFirstSelectedOption().getText());
+        Thread.sleep(2000);
+
+        // ================= State =================
+        Select state = new Select(driver.findElement(By.id("state")));
+
+        System.out.println("\nTotal States: " + state.getOptions().size());
+
+        state.selectByVisibleText("Maharashtra");
+
+        System.out.println("Selected State:");
+        System.out.println(state.getFirstSelectedOption().getText());
+        Thread.sleep(2000);
+
+        // ================= District =================
+        Select district = new Select(driver.findElement(By.id("district")));
+
+        System.out.println("\nTotal Districts: " + district.getOptions().size());
+
+        district.selectByVisibleText("Sindhudurg");
+
+        System.out.println("Selected District:");
+        System.out.println(district.getFirstSelectedOption().getText());
+        Thread.sleep(2000);
+
+        driver.findElement(By.xpath("//input[@value='Register']")).click();
+        Thread.sleep(1000);
+
+        driver.switchTo().alert().accept();
+
+        System.out.println("Registration Successful!");
+    }
+}
+

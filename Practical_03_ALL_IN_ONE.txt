@@ -1,0 +1,293 @@
+PRACTICAL No. 03 - Login Automation and Validation
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium WebDriver (Java)
+  * Selenium JAR (selenium-server-standalone-3.13.0.jar used in the screenshots)
+  * ChromeDriver (matching your Chrome version)  /  GeckoDriver for Firefox
+  * NetBeans IDE 8.2 + JDK 1.8
+  * XAMPP (Apache + MySQL + PHP), phpMyAdmin
+
+REQUIREMENTS
+------------
+  * HTML form : YES - login.html, register.html (+ login.php, success.php, register.php)
+  * Excel data : NOT needed
+  * Java code  : YES - Project3.java (login) and register.java (registration)
+  * Database   : YES - registration_db.users (database.sql)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - login.html
+  - login.php
+  - success.php
+  - register.html
+  - register.php
+  - database.sql
+  - Project3.java
+  - register.java
+
+STEPS / HOW TO RUN
+------------------
+1. Copy login.html/php and register.html/php into  C:\xampp\htdocs\login\  (register files in ...\login\register\ ) and start Apache + MySQL.
+   Java URLs used:  http://localhost:8080/login/login.html   and   http://localhost:8080/login/register/register.html
+   (port 8080 = Apache port in the screenshots; change to 80 if your XAMPP uses the default).
+2. Run database.sql in phpMyAdmin.
+3. Download the Selenium Java JAR and ChromeDriver (and GeckoDriver for Firefox).
+4. NetBeans: New Java Project -> right-click Libraries -> Add JAR/Folder -> select the Selenium JAR.
+5. Create Project3.java and register.java, edit the chromedriver.exe path in both files.
+6. Run Project3.java: browser opens, fills admin/12345, clicks Login, prints  "Page Title: Success"  then "Success".
+7. Run register.java: fills fullname/email/username/password and clicks Register.
+NOTE: register.php in the original document was incomplete (no $conn / $sql); the full version is supplied here.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: login.html
+======================================================================
+<!--
+  Practical No : 03
+  Topic        : Login Automation and Validation
+  File name    : login.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login Form</title>
+</head>
+<body>
+<h2>Login Page</h2>
+<form action="login.php" method="POST">
+<label>Username:</label>
+<input type="text" name="username" required><br><br>
+<label>Password:</label>
+<input type="password" name="password" required><br><br>
+<input type="submit" value="Login">
+</form>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: login.php
+======================================================================
+<?php
+/*
+ * Practical No : 03
+ * Topic        : Login Automation and Validation
+ * File name    : login.php
+ */
+$username = $_POST['username'];
+$password = $_POST['password'];
+// Demo credentials
+$correct_username = "admin";
+$correct_password = "12345";
+if ($username == $correct_username && $password == $correct_password) {
+header("Location: success.php");
+exit();
+} else {
+echo "Invalid Username or Password!";
+}
+?>
+
+
+
+======================================================================
+ FILE: success.php
+======================================================================
+<!--
+  Practical No : 03
+  Topic        : Login Automation and Validation
+  File name    : success.php
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Success</title>
+</head>
+<body>
+<h1>Login Successful!</h1>
+<p>Welcome to the dashboard.</p>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: register.html
+======================================================================
+<!--
+  Practical No : 03
+  Topic        : Login Automation and Validation
+  File name    : register.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration Form</title>
+</head>
+<body>
+<h2>User Registration</h2>
+<form action="register.php" method="POST">
+<label>Full Name:</label><br>
+<input type="text" name="fullname" required><br><br>
+<label>Email:</label><br>
+<input type="email" name="email" required><br><br>
+<label>Username:</label><br>
+<input type="text" name="username" required><br><br>
+<label>Password:</label><br>
+<input type="password" name="password" required><br><br>
+<input type="submit" value="Register">
+</form>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: register.php
+======================================================================
+<?php
+/*
+ * Practical No : 03
+ * Topic        : Login Automation and Validation
+ * File name    : register.php
+ */
+// NOTE: the original document connected without selecting a database.
+// "registration_db" (see database.sql) is selected here so the INSERT works.
+$conn = mysqli_connect("localhost", "root", "", "registration_db");
+if (!$conn) {
+die("Connection Failed");
+}
+$fullname = $_POST['fullname'];
+$email = $_POST['email'];
+$username = $_POST['username'];
+$password = $_POST['password'];
+$sql = "INSERT INTO users(fullname,email,username,password)
+VALUES('$fullname','$email','$username','$password')";
+if(mysqli_query($conn,$sql))
+{
+echo "Registration Successful!";
+}
+else
+{
+echo "Registration Failed!";
+}
+mysqli_close($conn);
+?>
+
+
+
+======================================================================
+ FILE: database.sql
+======================================================================
+-- Practical No : 03
+-- Topic        : Login Automation and Validation
+-- File name    : database.sql
+
+-- Create the database / table used by register.php  (run in phpMyAdmin -> SQL tab)
+CREATE DATABASE IF NOT EXISTS registration_db;
+USE registration_db;
+
+CREATE TABLE IF NOT EXISTS users (
+    id       INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(100),
+    email    VARCHAR(100),
+    username VARCHAR(50),
+    password VARCHAR(50)
+);
+
+
+
+======================================================================
+ FILE: Project3.java
+======================================================================
+/*
+ * Practical No : 03
+ * Topic        : Login Automation and Validation
+ * File name    : Project3.java
+ */
+package project3;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class Project3 {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Sakshi\\Documents\\NetBeansProjects\\project3\\src\\driver\\chromedriver.exe");
+
+        ChromeDriver driver = new ChromeDriver();
+
+        driver.get("http://localhost:8080/login/login.html");
+
+        driver.findElement(By.name("username")).sendKeys("admin");
+
+        driver.findElement(By.name("password")).sendKeys("12345");
+
+        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        //driver.findElement(By.name("login")).click();
+
+        Thread.sleep(2000);
+
+        String title = driver.getTitle();
+
+        System.out.println("Page Title: " + title);
+
+        if (title.equalsIgnoreCase("Success")) {
+            System.out.println("Success");
+        } else {
+            System.out.println("Login failed");
+        }
+    }
+}
+
+
+
+======================================================================
+ FILE: register.java
+======================================================================
+/*
+ * Practical No : 03
+ * Topic        : Login Automation and Validation
+ * File name    : register.java
+ */
+package project3;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class register {
+
+    public static void main(String[] args) throws Exception {
+
+        System.setProperty("webdriver.chrome.driver",
+                "C:\\Users\\Sakshi\\Documents\\NetBeansProjects\\project3\\src\\driver\\chromedriver.exe");
+
+        WebDriver driver = new ChromeDriver();
+
+        driver.get("http://localhost:8080/login/register/register.html");
+        driver.findElement(By.name("fullname")).sendKeys("Sakshi Ramkrishna Mestry");
+        Thread.sleep(2000);
+        driver.findElement(By.name("email")).sendKeys("asakshimestry06@gmail.com");
+        Thread.sleep(2000);
+        driver.findElement(By.name("username")).sendKeys("admin");
+        Thread.sleep(2000);
+        driver.findElement(By.name("password")).sendKeys("12345");
+        Thread.sleep(2000);
+
+        // Click Register
+        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        // Wait for 2 seconds
+        Thread.sleep(2000);
+    }
+}
+

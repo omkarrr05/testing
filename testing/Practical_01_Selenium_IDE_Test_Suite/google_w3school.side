@@ -1,0 +1,36 @@
+{
+  "id": "9d1b0f3c-0001-4a11-9a11-0000000000a1",
+  "version": "2.0",
+  "name": "project 1",
+  "url": "https://www.google.com",
+  "tests": [
+    {
+      "id": "9d1b0f3c-0002-4a11-9a11-0000000000a2",
+      "name": "google_w3school_search",
+      "commands": [
+        {"id": "c1",  "comment": "", "command": "open",          "target": "/",                 "targets": [], "value": ""},
+        {"id": "c2",  "comment": "", "command": "setWindowSize", "target": "1325x816",          "targets": [], "value": ""},
+        {"id": "c3",  "comment": "", "command": "click",         "target": "name=q",            "targets": [["name=q", "name"]], "value": ""},
+        {"id": "c4",  "comment": "", "command": "type",          "target": "name=q",            "targets": [["name=q", "name"]], "value": "w3 school"},
+        {"id": "c5",  "comment": "", "command": "sendKeys",      "target": "name=q",            "targets": [["name=q", "name"]], "value": "${KEY_ENTER}"},
+        {"id": "c6",  "comment": "", "command": "mouseOver",     "target": "linkText=W3.CSS",   "targets": [], "value": ""},
+        {"id": "c7",  "comment": "", "command": "mouseOut",      "target": "linkText=W3.CSS",   "targets": [], "value": ""},
+        {"id": "c8",  "comment": "", "command": "click",         "target": "linkText=PHP",      "targets": [], "value": ""},
+        {"id": "c9",  "comment": "", "command": "click",         "target": "linkText=HOW TO",   "targets": [], "value": ""},
+        {"id": "c10", "comment": "", "command": "click",         "target": "linkText=EXCEL",    "targets": [], "value": ""}
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "9d1b0f3c-0003-4a11-9a11-0000000000a3",
+      "name": "Test Suite 1",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": ["9d1b0f3c-0002-4a11-9a11-0000000000a2"]
+    }
+  ],
+  "urls": ["https://www.google.com/"],
+  "plugins": []
+}

@@ -1,0 +1,193 @@
+PRACTICAL No. 12 - Manual Test Case Design and Execution
+======================================================================
+
+TOOLS USED
+----------
+  * Microsoft Excel (test plan / scenarios / test data / test cases / execution report / defect report)
+  * Google Chrome (Windows 11)
+  * XAMPP htdocs to host the login page under test
+  * Screenshots of every test case (Snipping Tool)
+
+REQUIREMENTS
+------------
+  * HTML form : YES - login.html + success.html (application under test; rebuilt, the document only shows screenshots)
+  * Excel data : YES - Practical12_Test_Documents.xlsx (6 sheets, content copied from the document images)
+  * Java code  : NOT needed (manual testing)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - login.html
+  - success.html
+  - Practical12_Test_Documents.xlsx
+
+STEPS / HOW TO RUN
+------------------
+STLC followed: Requirement Analysis -> Test Planning -> Test Case Design -> Test Environment Setup -> Test Execution -> Defect Reporting -> Test Closure
+ 1. Copy login.html and success.html to C:\xampp\htdocs\SoftwareTesting\Practical_12\ and open login.html in Chrome.
+ 2. Open Practical12_Test_Documents.xlsx - sheets: Test Plan | Test Scenarios | Test Data | Test Cases | Execution Report | Defect Report.
+ 3. Execute TC_001 ... TC_008 by hand with the test data TD_001 ... TD_007, take a screenshot of each result and fill Actual Result / Status.
+ 4. Record failures as defects (BUG_001 sample provided in the Defect Report sheet).
+NOTE: the document's defect report refers to TC_09 / 'invalid email format' which is not among TC_001-TC_008; it is copied as-is, status Closed / No Defect.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: login.html
+======================================================================
+<!--
+  Practical No : 12
+  Topic        : Manual Test Case Design and Execution
+  File name    : login.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login Page</title>
+<script>
+// Reconstructed application under test for the manual test cases (TC_001 - TC_008).
+// Valid user: admin / 12345.  Empty fields are caught by the HTML5 'required' attribute
+// ("Please fill out this field").
+function checkLogin() {
+  var u = document.getElementById("username").value;
+  var p = document.getElementById("password").value;
+  var okUser = (u === "admin");
+  var okPass = (p === "12345");
+  var msg = document.getElementById("message");
+  if (okUser && okPass) {
+    window.location.href = "success.html";
+  } else if (!okUser && !okPass) {
+    msg.innerText = "Invalid Username and Password";
+  } else if (!okUser) {
+    msg.innerText = "Invalid Username";
+  } else {
+    msg.innerText = "Invalid Password";
+  }
+  return false;
+}
+</script>
+</head>
+<body>
+<h2>Login Page</h2>
+<form onsubmit="return checkLogin()">
+<label>Username:</label>
+<input type="text" id="username" name="username" required><br><br>
+<label>Password:</label>
+<input type="password" id="password" name="password" required><br><br>
+<input type="submit" value="Login">
+</form>
+<p id="message" style="color:red;"></p>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: success.html
+======================================================================
+<!--
+  Practical No : 12
+  Topic        : Manual Test Case Design and Execution
+  File name    : success.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Success</title>
+</head>
+<body>
+<h1>Login Successful!</h1>
+<p>Welcome! You have successfully logged in.</p>
+<a href="login.html">Logout</a>
+</body>
+</html>
+
+
+
+======================================================================
+ EXCEL FILE: Practical12_Test_Documents.xlsx   (binary - the real file is in testing/Practical_12_Manual_Test_Case_Design/)
+======================================================================
+[Sheet: Test Plan]
+  Field             | Details                                      
+  Project Name      | Login Web Application                        
+  Module            | User Login                                   
+  Testing Type      | Manual Functional Testing                    
+  Testing Technique | Black-box Testing                            
+  Testing Tool      | MS Excel                                     
+  Browser           | Google Chrome                                
+  Operating System  | Windows 11                                   
+  Test Environment  | Web Test Environment                         
+  Tester            | Tanish Sane                                  
+  Test Data         | Valid and invalid username/password credentia
+  Entry Criteria    | Login application is available and requiremen
+  Exit Criteria     | All planned test cases are executed and defec
+  Priority          | High                                         
+  Scope             | Login page, valid login, invalid login, empty
+  Out of Scope      | Performance, security penetration testing and
+  Deliverables      | Test Cases, Test Execution Report, Defect Rep
+
+[Sheet: Test Scenarios]
+  Scenario ID | Test Scenario                                 | Priority
+  TS_001      | Verify login page is displayed correctly      | High    
+  TS_002      | Verify login with valid credentials           | High    
+  TS_003      | Verify login with invalid username            | High    
+  TS_004      | Verify login with invalid password            | High    
+  TS_005      | Verify login with invalid username and invali | High    
+  TS_006      | Verify login with both username and password  | High    
+  TS_007      | Verify login with empty username              | High    
+  TS_008      | Verify login with empty password              | High    
+
+[Sheet: Test Data]
+  Data ID | Username | Password | Expected Result              
+  TD_001  | admin    | 12345    | Login successful             
+  TD_002  | Joseph   | 12345    | Invalid Username             
+  TD_003  | admin    | 112233   | Invalid Password             
+  TD_004  | Joseph   | 794561   | Invalid Username and Password
+  TD_005  | Empty    | Empty    | Please fill out the field    
+  TD_006  | Empty    | 12345    | Please fill out the field    
+  TD_007  | admin    | Blank    | Please fill out the field    
+
+[Sheet: Test Cases]
+  TC ID  | Test Scenario                                 | Test Steps                                    | Test Data | Expected Result                               | Priority
+  TC_001 | Verify login page is displayed correctly      | Open the login page                           | None      | Login page, Username, Password and Login butt | High    
+  TC_002 | Verify login with valid credentials           | Enter username and password -> Click Login    | TD_001    | User should be redirected to success page sho | High    
+  TC_003 | Verify login with invalid username            | Enter invalid username and valid password ->  | TD_002    | Login should fail and Invalid Username should | High    
+  TC_004 | Verify login with invalid password            | Enter valid username and invalid password ->  | TD_003    | Login should fail and Invalid Password should | High    
+  TC_005 | Verify login with invalid username and invali | Enter invalid username and invalid password - | TD_004    | Invalid Username and Password should be displ | High    
+  TC_006 | Verify login with both username and password  | Leave username and password empty -> Click Lo | TD_005    | Please fill out the field should be displayed | High    
+  TC_007 | Verify login with empty username              | Leave username empty and enter password -> Cl | TD_006    | Please fill out the field should be displayed | High    
+  TC_008 | Verify login with empty password              | Enter username and leave password empty -> Cl | TD_007    | Please fill out the field should be displayed | High    
+
+[Sheet: Execution Report]
+  TC ID  | Test Case                                     | Test Data                          | Expected Result                               | Actual Result                                 | Status | Remarks                                      
+  TC_001 | Verify login page is displayed correctly      | None                               | Login Page, Username, Password and Login butt | Login Page, Username, Password and Login butt | Pass   | Login page displayed successfully            
+  TC_002 | Verify login with valid credentials           | Username: admin, Password: 12345   | User should be redirected to success page sho | Login Successful and Welcome to the dashboard | Pass   | Login successfully performed using valid cred
+  TC_003 | Verify login with invalid username            | Username: Joseph, Password: 12345  | Login should fail and Invalid Username should | Login was rejected because an invalid usernam | Pass   | Invalid username was correctly rejected      
+  TC_004 | Verify login with invalid password            | Username: admin, Password: 112233  | Login should fail and Invalid Password should | Invalid Password displayed                    | Pass   | Invalid password was correctly rejected      
+  TC_005 | Verify login with invalid username and invali | Username: Joseph, Password: 794561 | Invalid Username and Password should be displ | Invalid Username and Password displayed       | Pass   | Login was rejected because both username and 
+  TC_006 | Verify login with both username and password  | Username: Empty, Password: Empty   | Please fill out the field should be displayed | Please fill out the field displayed           | Pass   | Login was not performed because username and 
+  TC_007 | Verify login with empty username              | Username: Empty, Password: 12345   | Please fill out the field should be displayed | Please fill out the field displayed           | Pass   | Login was not performed because username was 
+  TC_008 | Verify login with empty password              | Username: admin, Password: Blank   | Please fill out the field should be displayed | Please fill out the field displayed           | Pass   | Login was not performed because password was 
+
+[Sheet: Defect Report]
+  Field              | Details                                      
+  Defect ID          | BUG_001                                      
+  Test Case ID       | TC_09                                        
+  Defect Title       | Invalid Login Credential is accepted         
+  Module             | Login                                        
+  Severity           | Medium                                       
+  Priority           | Medium                                       
+  Environment        | Windows + Google Chrome                      
+  Preconditions      | Login page is open                           
+  Steps to Reproduce | 1. Enter Joseph Mantero in the username  2. E
+  Expected Result    | Application should display an invalid email f
+  Actual Result      | Not displayed Invalid Credential message. The
+  Status             | Closed / No Defect                           
+  Assigned To        | Developer                                    
+  Reported By        | Joseph Mantero                               
+  Date               | 01/Oct/26                                    
+

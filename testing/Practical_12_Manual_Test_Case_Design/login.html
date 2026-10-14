@@ -1,0 +1,44 @@
+<!--
+  Practical No : 12
+  Topic        : Manual Test Case Design and Execution
+  File name    : login.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login Page</title>
+<script>
+// Reconstructed application under test for the manual test cases (TC_001 - TC_008).
+// Valid user: admin / 12345.  Empty fields are caught by the HTML5 'required' attribute
+// ("Please fill out this field").
+function checkLogin() {
+  var u = document.getElementById("username").value;
+  var p = document.getElementById("password").value;
+  var okUser = (u === "admin");
+  var okPass = (p === "12345");
+  var msg = document.getElementById("message");
+  if (okUser && okPass) {
+    window.location.href = "success.html";
+  } else if (!okUser && !okPass) {
+    msg.innerText = "Invalid Username and Password";
+  } else if (!okUser) {
+    msg.innerText = "Invalid Username";
+  } else {
+    msg.innerText = "Invalid Password";
+  }
+  return false;
+}
+</script>
+</head>
+<body>
+<h2>Login Page</h2>
+<form onsubmit="return checkLogin()">
+<label>Username:</label>
+<input type="text" id="username" name="username" required><br><br>
+<label>Password:</label>
+<input type="password" id="password" name="password" required><br><br>
+<input type="submit" value="Login">
+</form>
+<p id="message" style="color:red;"></p>
+</body>
+</html>

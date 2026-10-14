@@ -1,0 +1,140 @@
+PRACTICAL No. 01 - Creation of Test Suite using Selenium IDE
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium IDE (Chrome / Edge browser extension)
+  * Google Chrome or Microsoft Edge
+  * (optional) Java JDK 8+, NetBeans, Selenium Java JAR + ChromeDriver to run the exported WebDriver script
+
+REQUIREMENTS
+------------
+  * HTML form : NOT needed (the recording is done on https://www.google.com)
+  * Excel data : NOT needed
+  * Java code  : only the *exported* WebDriver script (GoogleW3SchoolTest.java is an equivalent)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - google_w3school.side
+  - GoogleW3SchoolTest.java
+
+STEPS / HOW TO RUN
+------------------
+1. Install Selenium IDE from the Chrome Web Store / Edge Add-ons ("Add extension").
+2. Open Selenium IDE from the browser toolbar -> "Record a new test in a new project".
+3. Project name: project 1, base URL: https://www.google.com
+4. Recorded commands (see google_w3school.side):
+     open /                        | set window size 1325x816
+     click id=APjFqb               | type id=APjFqb  value = w3 school
+     click id=APjFqb               | mouse over / mouse out linkText=W3.CSS
+     click linkText=PHP            | click linkText=HOW TO | click linkText=EXCEL
+5. Stop recording. Create a Test Suite (Test Suites tab -> + ) and add the test to it.
+6. Run the suite (Run all tests) and verify every command is green.
+7. Right-click the test -> Export -> Java JUnit (WebDriver script) = the "Generated WebDriver Automation Script".
+   To import the supplied project: Selenium IDE -> Open an existing project -> google_w3school.side
+Note: the id APjFqb is Google's auto-generated box id and can change; if the replay fails, change the target to name=q.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: google_w3school.side
+======================================================================
+{
+  "id": "9d1b0f3c-0001-4a11-9a11-0000000000a1",
+  "version": "2.0",
+  "name": "project 1",
+  "url": "https://www.google.com",
+  "tests": [
+    {
+      "id": "9d1b0f3c-0002-4a11-9a11-0000000000a2",
+      "name": "google_w3school_search",
+      "commands": [
+        {"id": "c1",  "comment": "", "command": "open",          "target": "/",                 "targets": [], "value": ""},
+        {"id": "c2",  "comment": "", "command": "setWindowSize", "target": "1325x816",          "targets": [], "value": ""},
+        {"id": "c3",  "comment": "", "command": "click",         "target": "name=q",            "targets": [["name=q", "name"]], "value": ""},
+        {"id": "c4",  "comment": "", "command": "type",          "target": "name=q",            "targets": [["name=q", "name"]], "value": "w3 school"},
+        {"id": "c5",  "comment": "", "command": "sendKeys",      "target": "name=q",            "targets": [["name=q", "name"]], "value": "${KEY_ENTER}"},
+        {"id": "c6",  "comment": "", "command": "mouseOver",     "target": "linkText=W3.CSS",   "targets": [], "value": ""},
+        {"id": "c7",  "comment": "", "command": "mouseOut",      "target": "linkText=W3.CSS",   "targets": [], "value": ""},
+        {"id": "c8",  "comment": "", "command": "click",         "target": "linkText=PHP",      "targets": [], "value": ""},
+        {"id": "c9",  "comment": "", "command": "click",         "target": "linkText=HOW TO",   "targets": [], "value": ""},
+        {"id": "c10", "comment": "", "command": "click",         "target": "linkText=EXCEL",    "targets": [], "value": ""}
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "9d1b0f3c-0003-4a11-9a11-0000000000a3",
+      "name": "Test Suite 1",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": ["9d1b0f3c-0002-4a11-9a11-0000000000a2"]
+    }
+  ],
+  "urls": ["https://www.google.com/"],
+  "plugins": []
+}
+
+
+
+======================================================================
+ FILE: GoogleW3SchoolTest.java
+======================================================================
+/*
+ * Practical No : 01
+ * Topic        : Creation of Test Suite using Selenium IDE
+ * File name    : GoogleW3SchoolTest.java
+ */
+package practical1;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import java.util.concurrent.TimeUnit;
+
+/* Hand-written equivalent of the script Selenium IDE exports for google_w3school.side */
+public class GoogleW3SchoolTest {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        System.setProperty("webdriver.chrome.driver",
+                "C:\\Users\\Sakshi\\Documents\\NetBeansProjects\\project1\\src\\driver\\chromedriver.exe");
+
+        WebDriver driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+        // 1-2  open / set window size
+        driver.get("https://www.google.com/");
+        driver.manage().window().setSize(new Dimension(1325, 816));
+
+        // 3-5  click search box, type, press ENTER
+        driver.findElement(By.name("q")).click();
+        driver.findElement(By.name("q")).sendKeys("w3 school");
+        driver.findElement(By.name("q")).sendKeys(Keys.ENTER);
+        Thread.sleep(2000);
+
+        // open the W3Schools result
+        driver.findElement(By.partialLinkText("W3Schools")).click();
+        Thread.sleep(2000);
+
+        // 6-10  navigate W3Schools top menu
+        driver.findElement(By.linkText("PHP")).click();
+        Thread.sleep(1500);
+        driver.findElement(By.linkText("HOW TO")).click();
+        Thread.sleep(1500);
+        driver.findElement(By.linkText("EXCEL")).click();
+        Thread.sleep(1500);
+
+        System.out.println("Title : " + driver.getTitle());
+        driver.quit();
+    }
+}
+

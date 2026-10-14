@@ -1,0 +1,200 @@
+PRACTICAL No. 02 - Cross-Website Functional Testing Using Selenium IDE
+======================================================================
+
+TOOLS USED
+----------
+  * Selenium IDE (browser extension)
+  * XAMPP (Apache + MySQL + PHP)
+  * phpMyAdmin
+  * Google Chrome / Edge
+
+REQUIREMENTS
+------------
+  * HTML form : YES - login.html, register.html (+ PHP back-end login.php, success.php, register.php)
+  * Excel data : NOT needed
+  * Java code  : NOT needed (tests are recorded in Selenium IDE)
+  * Database   : YES - registration_db.users (database.sql)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - login.html
+  - login.php
+  - success.php
+  - register.html
+  - register.php
+  - database.sql
+
+STEPS / HOW TO RUN
+------------------
+1. Install XAMPP, start Apache and MySQL.
+2. Copy this folder's html/php files into C:\xampp\htdocs\SoftwareTesting\Practical_2\
+3. phpMyAdmin -> SQL -> run database.sql (creates registration_db and users).
+4. Browse http://localhost/SoftwareTesting/Practical_2/login.html  (valid login: admin / 12345 -> success.php).
+5. Browse register.html and register a user -> "Registration Successful!".
+6. In Selenium IDE record:  (a) open login.html, type username/password, click Login, assert success page text;
+                           (b) open register.html, fill the 4 fields, click Register, assert "Registration Successful!".
+7. Add both tests to a suite, run it, then run the same suite in a second browser (Chrome/Edge) = cross-website / cross-browser check.
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: login.html
+======================================================================
+<!--
+  Practical No : 02
+  Topic        : Cross-Website Functional Testing Using Selenium IDE
+  File name    : login.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login Form</title>
+</head>
+<body>
+<h2>Login Page</h2>
+<form action="login.php" method="POST">
+<label>Username:</label>
+<input type="text" name="username" required><br><br>
+<label>Password:</label>
+<input type="password" name="password" required><br><br>
+<input type="submit" value="Login">
+</form>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: login.php
+======================================================================
+<?php
+/*
+ * Practical No : 02
+ * Topic        : Cross-Website Functional Testing Using Selenium IDE
+ * File name    : login.php
+ */
+$username = $_POST['username'];
+$password = $_POST['password'];
+// Demo credentials
+$correct_username = "admin";
+$correct_password = "12345";
+if ($username == $correct_username && $password == $correct_password) {
+header("Location: success.php");
+exit();
+} else {
+echo "Invalid Username or Password!";
+}
+?>
+
+
+
+======================================================================
+ FILE: success.php
+======================================================================
+<!--
+  Practical No : 02
+  Topic        : Cross-Website Functional Testing Using Selenium IDE
+  File name    : success.php
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Success</title>
+</head>
+<body>
+<h1>Login Successful!</h1>
+<p>Welcome to the dashboard.</p>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: register.html
+======================================================================
+<!--
+  Practical No : 02
+  Topic        : Cross-Website Functional Testing Using Selenium IDE
+  File name    : register.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration Form</title>
+</head>
+<body>
+<h2>User Registration</h2>
+<form action="register.php" method="POST">
+<label>Full Name:</label><br>
+<input type="text" name="fullname" required><br><br>
+<label>Email:</label><br>
+<input type="email" name="email" required><br><br>
+<label>Username:</label><br>
+<input type="text" name="username" required><br><br>
+<label>Password:</label><br>
+<input type="password" name="password" required><br><br>
+<input type="submit" value="Register">
+</form>
+</body>
+</html>
+
+
+
+======================================================================
+ FILE: register.php
+======================================================================
+<?php
+/*
+ * Practical No : 02
+ * Topic        : Cross-Website Functional Testing Using Selenium IDE
+ * File name    : register.php
+ */
+// NOTE: the original document connected without selecting a database.
+// "registration_db" (see database.sql) is selected here so the INSERT works.
+$conn = mysqli_connect("localhost", "root", "", "registration_db");
+if (!$conn) {
+die("Connection Failed");
+}
+$fullname = $_POST['fullname'];
+$email = $_POST['email'];
+$username = $_POST['username'];
+$password = $_POST['password'];
+$sql = "INSERT INTO users(fullname,email,username,password)
+VALUES('$fullname','$email','$username','$password')";
+if(mysqli_query($conn,$sql))
+{
+echo "Registration Successful!";
+}
+else
+{
+echo "Registration Failed!";
+}
+mysqli_close($conn);
+?>
+
+
+
+======================================================================
+ FILE: database.sql
+======================================================================
+-- Practical No : 02
+-- Topic        : Cross-Website Functional Testing Using Selenium IDE
+-- File name    : database.sql
+
+-- Create the database / table used by register.php  (run in phpMyAdmin -> SQL tab)
+CREATE DATABASE IF NOT EXISTS registration_db;
+USE registration_db;
+
+CREATE TABLE IF NOT EXISTS users (
+    id       INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(100),
+    email    VARCHAR(100),
+    username VARCHAR(50),
+    password VARCHAR(50)
+);
+

@@ -1,0 +1,331 @@
+PRACTICAL No. 08 - Data-Driven Testing Using Excel Integration
+======================================================================
+
+TOOLS USED
+----------
+  * Java + JXL library (jxl.jar - used in the code; the practical title says Apache POI but the supplied code uses JXL)
+  * Selenium WebDriver (listed as the practical tool; not actually called in the three programs)
+  * NetBeans 8.2 + JDK 1.8
+  * Microsoft Excel (.xls files)
+
+REQUIREMENTS
+------------
+  * HTML form : NOT needed
+  * Excel data : YES - student_records.xls (10 students: Sr No, Name, OS, Java, WebTech, Total) in C:\Excel\
+  * Java code  : YES - ExceldataReading.java, PassStudents.java, StudentPercentage.java (package exceldatareading)
+
+FILES IN THIS PRACTICAL
+-----------------------
+  - ExceldataReading.java
+  - PassStudents.java
+  - StudentPercentage.java
+  - student_records.xls
+
+STEPS / HOW TO RUN
+------------------
+1. Download jxl.jar (JExcelApi) and add it to the NetBeans project (Libraries -> Add JAR/Folder). JXL reads/writes .xls only.
+2. Create folder C:\Excel\ and put student_records.xls (supplied) in it.
+3. Run the programs in this order:
+     ExceldataReading  -> creates student_records1.xls   (copy + 'Result' column: fail if any subject < 40, else pass)
+     PassStudents      -> reads student_records1.xls, creates passstudents.xls (only pass rows)
+     StudentPercentage -> reads student_records1.xls, creates studentpercentage.xls (adds Total + Percentage = total/3)
+4. Open the generated .xls files in Excel and compare with the screenshots.
+Excel layout used by the code: column 0 Sr No, 1 Name, 2 OS, 3 Java, 4 WebTech, 5 Total (the 'Result' column is added by program 1).
+Expected results: Tanmay (OS 39), Lochan (OS 34) and Yash (OS 31) = fail; the other 7 = pass.
+To use Apache POI instead, replace the jxl.* classes with org.apache.poi.* (HSSFWorkbook / XSSFWorkbook).
+
+
+
+######################################################################
+# ALL MATERIAL FOR THIS PRACTICAL (copy each block into its own file)
+######################################################################
+
+
+======================================================================
+ FILE: ExceldataReading.java
+======================================================================
+/*
+ * Practical No : 08
+ * Topic        : Data-Driven Testing Using Excel Integration
+ * File name    : ExceldataReading.java
+ */
+package exceldatareading;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+
+/* Step 1: copy student_records.xls to a new file and add a Result column (marks < 40 = fail, else pass) */
+public class ExceldataReading {
+
+    public static void main(String[] args) throws Exception {
+
+        // Original Excel file
+        FileInputStream fi = new FileInputStream("C:\\Excel\\student_records.xls");
+
+        // Read workbook
+        Workbook wb = Workbook.getWorkbook(fi);
+
+        // Read first sheet
+        Sheet s = wb.getSheet(0);
+
+        // Create new Excel file
+        FileOutputStream fo = new FileOutputStream("C:\\Excel\\student_records1.xls");
+
+        WritableWorkbook wwb = Workbook.createWorkbook(fo);
+
+        // Create new sheet
+        WritableSheet ws = wwb.createSheet("Result", 0);
+
+        // Result column
+        int resultColumn = s.getColumns();
+
+        // Copy original data
+        for (int i = 0; i < s.getRows(); i++) {
+            for (int j = 0; j < s.getColumns(); j++) {
+                String data = s.getCell(j, i).getContents();
+                ws.addCell(new Label(j, i, data));
+            }
+        }
+
+        // Add Result heading
+        ws.addCell(new Label(resultColumn, 0, "Result"));
+
+        // Check students
+        for (int i = 1; i < s.getRows(); i++) {
+
+            boolean pass = true;
+
+            // Marks columns
+            for (int j = 2; j < s.getColumns(); j++) {
+
+                String value = s.getCell(j, i).getContents();
+
+                // Skip Total column if required
+                if (j == s.getColumns() - 1) {
+                    continue;
+                }
+
+                int marks = Integer.parseInt(value);
+
+                if (marks < 40) {
+                    pass = false;
+                    break;
+                }
+            }
+
+            if (pass) {
+                ws.addCell(new Label(resultColumn, i, "pass"));
+            } else {
+                ws.addCell(new Label(resultColumn, i, "fail"));
+            }
+        }
+
+        // Save file
+        wwb.write();
+        wwb.close();
+
+        wb.close();
+        fi.close();
+        fo.close();
+
+        System.out.println("Record update Successful...");
+    }
+}
+
+
+
+======================================================================
+ FILE: PassStudents.java
+======================================================================
+/*
+ * Practical No : 08
+ * Topic        : Data-Driven Testing Using Excel Integration
+ * File name    : PassStudents.java
+ */
+package exceldatareading;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+
+/* Step 2: create a new file / sheet containing ONLY the pass students */
+public class PassStudents {
+
+    public static void main(String[] args) throws Exception {
+
+        // Input file created in Step 1
+        FileInputStream fi = new FileInputStream("C:\\Excel\\student_records1.xls");
+
+        // Read workbook
+        Workbook wb = Workbook.getWorkbook(fi);
+
+        // Get first sheet
+        Sheet s = wb.getSheet(0);
+
+        // Create output file
+        FileOutputStream fo = new FileOutputStream("C:\\Excel\\passstudents.xls");
+
+        // Create writable workbook
+        WritableWorkbook wwb = Workbook.createWorkbook(fo);
+
+        // Create new sheet
+        WritableSheet ws = wwb.createSheet("Pass Students", 0);
+
+        // Copy heading
+        for (int j = 0; j < s.getColumns(); j++) {
+            String heading = s.getCell(j, 0).getContents();
+            ws.addCell(new Label(j, 0, heading));
+        }
+
+        // New row number
+        int k = 1;
+
+        // Check each student
+        for (int i = 1; i < s.getRows(); i++) {
+
+            String result = s.getCell(s.getColumns() - 1, i).getContents();
+
+            if (result.equalsIgnoreCase("pass")) {
+
+                // Copy complete student record
+                for (int j = 0; j < s.getColumns(); j++) {
+                    String data = s.getCell(j, i).getContents();
+                    ws.addCell(new Label(j, k, data));
+                }
+                k++;
+            }
+        }
+
+        // Save file
+        wwb.write();
+        wwb.close();
+
+        wb.close();
+        fi.close();
+        fo.close();
+
+        System.out.println("Pass Students File Created Successfully...");
+    }
+}
+
+
+
+======================================================================
+ FILE: StudentPercentage.java
+======================================================================
+/*
+ * Practical No : 08
+ * Topic        : Data-Driven Testing Using Excel Integration
+ * File name    : StudentPercentage.java
+ */
+package exceldatareading;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.Number;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+
+/* Step 3: create a new file / sheet, copy all records and calculate Total and Percentage */
+public class StudentPercentage {
+
+    public static void main(String[] args) throws Exception {
+
+        // Input file
+        FileInputStream fi = new FileInputStream("C:\\Excel\\student_records1.xls");
+
+        // Read workbook
+        Workbook wb = Workbook.getWorkbook(fi);
+
+        // Get first sheet
+        Sheet s = wb.getSheet(0);
+
+        // Create output file
+        FileOutputStream fo = new FileOutputStream("C:\\Excel\\studentpercentage.xls");
+
+        // Create writable workbook
+        WritableWorkbook wwb = Workbook.createWorkbook(fo);
+
+        // Create new sheet
+        WritableSheet ws = wwb.createSheet("Percentage", 0);
+
+        // Copy original data
+        for (int i = 0; i < s.getRows(); i++) {
+            for (int j = 0; j < s.getColumns(); j++) {
+                String data = s.getCell(j, i).getContents();
+                ws.addCell(new Label(j, i, data));
+            }
+        }
+
+        // Total and Percentage columns
+        int totalColumn = s.getColumns();
+        int percentageColumn = s.getColumns() + 1;
+
+        // Add headings
+        ws.addCell(new Label(totalColumn, 0, "Total"));
+        ws.addCell(new Label(percentageColumn, 0, "Percentage"));
+
+        // Calculate Total and Percentage
+        for (int i = 1; i < s.getRows(); i++) {
+
+            int total = 0;
+
+            // Marks are in columns 2, 3 and 4
+            for (int j = 2; j < 5; j++) {
+                String value = s.getCell(j, i).getContents();
+                int marks = Integer.parseInt(value);
+                total = total + marks;
+            }
+
+            // Write Total
+            ws.addCell(new Number(totalColumn, i, total));
+
+            // Calculate Percentage
+            double percentage = (double) total / 3;
+
+            ws.addCell(new Number(percentageColumn, i, percentage));
+        }
+
+        // Save file
+        wwb.write();
+        wwb.close();
+
+        // Close files
+        wb.close();
+        fi.close();
+        fo.close();
+
+        System.out.println("Student Percentage File Created Successfully...");
+    }
+}
+
+
+
+======================================================================
+ EXCEL FILE: student_records.xls   (binary - the real file is in testing/Practical_08_Data_Driven_Testing_Excel/)
+======================================================================
+[Sheet: Sheet1]
+  Sr No | Name       | OS | Java | WebTech | Total
+  1     | Tejas      | 80 | 85   | 75      | 240  
+  2     | Satej      | 75 | 90   | 80      | 245  
+  3     | Bhavesh    | 85 | 78   | 88      | 251  
+  4     | Tanmay     | 39 | 85   | 92      | 267  
+  5     | Paras      | 78 | 82   | 80      | 240  
+  6     | Balkrishna | 88 | 76   | 85      | 249  
+  7     | Lochan     | 34 | 89   | 78      | 249  
+  8     | Pratik     | 76 | 84   | 90      | 250  
+  9     | Yash       | 31 | 87   | 86      | 264  
+  10    | Omkar      | 85 | 92   | 89      | 266  
+

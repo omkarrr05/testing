@@ -1,0 +1,91 @@
+<!--
+  Practical No : 10
+  Topic        : Web Element Interaction and Synchronization Handling
+  File name    : login.html
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login Page</title>
+<script>
+function validateForm() {
+var name = document.getElementById("name").value;
+if (name == "") {
+alert("Name should be mandatory!");
+return false;
+}
+alert("Login successful!");
+}
+</script>
+</head>
+<body>
+
+<h1>Login and Registration Form</h1>
+
+<!-- Name -->
+<label>Name:</label>
+<input type="text" id="name">
+<br><br>
+
+<!-- Gender -->
+<label>Gender:</label>
+<input type="radio" id="male" name="gender" value="Male">
+<label for="male">Male</label>
+<input type="radio" id="female" name="gender" value="Female">
+<label for="female">Female</label>
+<input type="radio" id="other" name="gender" value="Other">
+<label for="other">Other</label>
+<br><br>
+
+<!-- Hobbies -->
+<label>Hobbies:</label>
+<input type="checkbox" id="reading">
+<label for="reading">Reading</label>
+<input type="checkbox" id="music">
+<label for="music">Music</label>
+<input type="checkbox" id="cricket">
+<label for="cricket">Cricket</label>
+<input type="checkbox" id="travelling">
+<label for="travelling">Travelling</label>
+<br><br>
+
+<!-- City -->
+<label>City:</label>
+<select id="city">
+<option value="">Select City</option>
+<option value="Kudal">Kudal</option>
+<option value="Sawantwadi">Sawantwadi</option>
+<option value="Malvan">Malvan</option>
+<option value="Kankavli">Kankavli</option>
+<option value="Vengurla">Vengurla</option>
+<option value="Devgad">Devgad</option>
+</select>
+<br><br>
+
+<!-- Submit -->
+<button id="submitButton" onclick="validateForm()">
+Submit
+</button>
+<br><br>
+
+<!-- Frame -->
+<h2>Table of Contents</h2>
+<iframe id="contentFrame" width="400" height="200"
+srcdoc="
+<html>
+<body>
+<h3>Contents</h3>
+<ul>
+<li>Introduction</li>
+<li>Student Information</li>
+<li>Hobbies</li>
+<li>City Selection</li>
+<li>Selenium Automation</li>
+</ul>
+</body>
+</html>
+">
+</iframe>
+
+</body>
+</html>
